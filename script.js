@@ -2,27 +2,20 @@ const canvas = document.getElementById('game');
 const ctx = canvas.getContext('2d');
 let random = Math.random() * 50
 let gameOver = false
-const propriedades = {
-    x: 0,
-    y: 0,
-    altura: 0,
-    largura: 0,
-    cor: '',
-}
+
 document.addEventListener('keypress', (e) => {
     if (e.code == 'Space') {
-        personagem.pulo()
-        if(gameOver==true){
+        personagem.pular()
+        if (gameOver == true) {
             location.reload()
         }
     }
 })
 document.addEventListener("click", (e) => {
-    if(gameOver==true){
+    if (gameOver == true) {
         location.reload()
     }
 })
-
 
 class Entidade {
     #gravidade
@@ -34,7 +27,7 @@ class Entidade {
         this.cor = propriedades.cor
         this.#gravidade = 0.2
     }
-    desenha = function (ctx, cor) {
+    desenha = function (ctx) {
         console.log("Fazer função de desenhar")
     }
     atualiza = function () {
@@ -48,10 +41,13 @@ class Entidade {
 class Personagem extends Entidade {
     #velocidadey
     #pulando
+    #pontuacao
     constructor(propriedades) {
         super(propriedades)
         this.#velocidadey = 0
         this.#pulando = false
+        this.pontuacao = 0
+        this.pontuar = false
     }
 
     desenha = function (ctx) {
@@ -66,47 +62,53 @@ class Personagem extends Entidade {
                 this.#pulando = false
                 this.#velocidadey = 0
                 this.y = canvas.height - 50
-            }if(this.y < 1){
+            } if (this.y < 1) {
                 this.y = 0
             }
         }
     }
 
-    pulo = function () {
+    pular = function () {
         this.#pulando = true
         this.#velocidadey = -6
-        console.log("Pulando")
+        console.log(this.x +  '<- y x ->' + this.y)
 
     }
 
-    verificarColisao = function(obstaculo){
-        if(
+    verificarColisao = function (obstaculo) {
+        if (
             this.x < obstaculo.x + obstaculo.largura &&
-        this.x + this.largura > obstaculo.x &&
-        this.y < obstaculo.y + obstaculo.altura &&
-        this.y + this.altura > obstaculo.y
-        ){  
+            this.x + this.largura > obstaculo.x &&
+            this.y < obstaculo.y + obstaculo.altura &&
+            this.y + this.altura > obstaculo.y
+        ) {
             this.#houveColisao(obstaculo)
         }
+        if(obstaculo.x + obstaculo.largura < 50){
+            this.pontuar = true
+            setTimeout(this.pontua(), 2000)
+            console.log(this.pontuacao)
+        }
     }
-    #houveColisao = function (obstaculo){
+
+    #houveColisao = function (obstaculo) {
         this.pararPersonagem()
         obstaculo.atualiza()
-        ctx.fillStyle='red'
-        ctx.fillRect((canvas.width/2)-200,(canvas.height/2)-50,400,100)
-        ctx.fillStyle='black'
-        ctx.font="50px Arial"
-        ctx.fillText("GAME OVER",(canvas.width/2)-150,(canvas.height/2))
-        gameOver=true
+        ctx.fillStyle = 'red'
+        ctx.fillRect((canvas.width / 2) - 200, (canvas.height / 2) - 50, 400, 100)
+        ctx.fillStyle = 'black'
+        ctx.font = "50px Arial"
+        ctx.fillText("GAME OVER", (canvas.width / 2) - 150, (canvas.height / 2))
+        gameOver = true
     }
-    pararPersonagem = function (){
+
+    pararPersonagem = function () {
         this.#velocidadey = this.getGravidade() + 40
         this.pulando = false
-        
     }
-    
-
-
+    pontua = function (){
+        this.pontuacao += 1
+    }
 }
 
 class Obstaculo extends Entidade {
@@ -134,16 +136,10 @@ class Obstaculo extends Entidade {
             this.altura = alturaRandom
         }
     }
-    pararObstaculo = function (){
+    pararObstaculo = function () {
         this.#velocidadex = 0
     }
-
 }
-
-
-
-let a = Math.random() * 50
-console.log(a + '')
 
 const propriedadesPerso1 = {
     cor: 'white',
@@ -159,7 +155,6 @@ const propriedadesObst1 = {
     x: canvas.width,
     y: canvas.height - 100,
 }
-
 const propriedadesObst2 = {
     cor: 'red',
     largura: 50,
@@ -167,9 +162,13 @@ const propriedadesObst2 = {
     x: canvas.width,
     y: 0,
 }
-
-
-
+const propriedadesObst3 = {
+    cor: 'red',
+    largura: 50,
+    altura: 100,
+    x: canvas.width + 500 + random,
+    y: 0,
+}
 const propriedadesObst4 = {
     random: Math.random() * 50,
     cor: 'red',
@@ -179,62 +178,38 @@ const propriedadesObst4 = {
     y: canvas.height - 100,
 }
 
-
-const propriedadesObst3 = {
-    cor: 'red',
-    largura: 50,
-    altura: 100,
-    x: canvas.width + 500 + random,
-    y: 0,
-}
-
-
-
-
 const obstaculos = [];
 for (let i = 0; i < 2; i++) {
-
-    if(i % 2 == 0 ){
-        obstaculos.push(new Obstaculo (propriedadesObst1))
+    if (i % 2 == 0) {
+        obstaculos.push(new Obstaculo(propriedadesObst1))
     } else {
-        obstaculos.push(new Obstaculo (propriedadesObst2))
+        obstaculos.push(new Obstaculo(propriedadesObst2))
     }
-    console.log(obstaculos)
 }
-
 const obstaculos2 = [];
 for (let i = 0; i < 2; i++) {
-
-    if(i % 2 == 0 ){
-        obstaculos2.push(new Obstaculo (propriedadesObst4))
+    if (i % 2 == 0) {
+        obstaculos2.push(new Obstaculo(propriedadesObst4))
     } else {
-        obstaculos2.push(new Obstaculo (propriedadesObst3))
+        obstaculos2.push(new Obstaculo(propriedadesObst3))
     }
-    console.log(obstaculos2)
 }
 
-
-
-
 const personagem = new Personagem(propriedadesPerso1)
-const obstaculo = new Obstaculo(propriedadesObst1)
-const obstaculo2 = new Obstaculo(propriedadesObst2)
-
-
 
 function loop() {
     ctx.clearRect(0, 0, canvas.width, canvas.height)
     personagem.desenha(ctx)
     personagem.atualiza()
     obstaculos.forEach((obstaculo) => {
-        personagem.verificarColisao(obstaculo);
-        if(gameOver == true){
+        personagem.verificarColisao(obstaculo)
+        if (gameOver == true) {
             obstaculo.pararObstaculo()
         }
-    });
+    })
     obstaculos2.forEach((obstaculo) => {
-        personagem.verificarColisao(obstaculo);
-        if(gameOver == true){
+        personagem.verificarColisao(obstaculo)
+        if (gameOver == true) {
             obstaculo.pararObstaculo()
         }
     });
